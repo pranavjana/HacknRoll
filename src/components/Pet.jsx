@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
+import { PlayIcon, PauseIcon, CurrencyDollarIcon } from '@heroicons/react/24/solid';
 import HealthBar from './HealthBar';
 import DraggableItem from './DraggableItem';
 import WoofBubble from './WoofBubble';
@@ -31,16 +31,32 @@ const initialItems = [
   { id: 6, name: 'Vitamins', type: 'medicine', quantity: 2 },
 ];
 
-export default function Pet() {
+export default function Pet({ coins, setCoins }) {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [health, setHealth] = useState(80);
-  const [items, setItems] = useState(initialItems);
+  const [health, setHealth] = useState(() => {
+    const savedHealth = localStorage.getItem('petHealth');
+    return savedHealth ? parseInt(savedHealth, 10) : 80;
+  });
+  const [items, setItems] = useState(() => {
+    const savedItems = localStorage.getItem('petItems');
+    return savedItems ? JSON.parse(savedItems) : initialItems;
+  });
   const [currentBackground, setCurrentBackground] = useState(backgrounds.GRASS);
   const [isDragOver, setIsDragOver] = useState(false);
   const animationRef = useRef();
 
   const MAX_HEALTH = 100;
+
+  // Save health to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('petHealth', health.toString());
+  }, [health]);
+
+  // Save items to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('petItems', JSON.stringify(items));
+  }, [items]);
 
   // Animation loop
   useEffect(() => {
@@ -148,7 +164,13 @@ export default function Pet() {
         <div className="bg-white rounded-lg shadow-lg p-4">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-xl font-bold text-neutral-800">Your Pet</h2>
-            <div className="flex gap-3 items-center">
+            <div className="flex items-center gap-4">
+              {/* Coins display */}
+              <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-md">
+                <CurrencyDollarIcon className="w-5 h-5 text-amber-500" />
+                <span className="font-medium text-amber-700">{coins}</span>
+              </div>
+              
               {/* Background selector */}
               <div className="flex gap-1">
                 <button
