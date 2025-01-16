@@ -17,6 +17,21 @@ export default {
         'neutral-700': '#404040',
         'neutral-800': '#262626',
         'neutral-900': '#171717',
+      },
+      keyframes: {
+        'bounce-small': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-25px)' }
+        },
+        'pop-in': {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '50%': { transform: 'scale(1.2)', opacity: '0.5' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        }
+      },
+      animation: {
+        'bounce-small': 'bounce-small 1.5s infinite',
+        'pop-in': 'pop-in 0.3s ease-out forwards'
       }
     },
   },
