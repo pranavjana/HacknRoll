@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import TaskItem from './TaskItem';
 
-export default function SubjectCard({ subject, onUpdate, onDelete }) {
+export default function SubjectCard({ subject, onUpdate, onDelete, difficultyLevels }) {
   const [newTask, setNewTask] = useState('');
   const [editingTask, setEditingTask] = useState(null);
+  const [taskDifficulty, setTaskDifficulty] = useState('MEDIUM');
 
   const handleAddTask = (e) => {
     e.preventDefault();
@@ -14,11 +15,17 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
       ...subject,
       tasks: [
         ...subject.tasks,
-        { id: Date.now(), content: newTask.trim(), completed: false }
+        { 
+          id: Date.now(), 
+          content: newTask.trim(), 
+          completed: false,
+          difficulty: taskDifficulty
+        }
       ]
     };
     onUpdate(updatedSubject);
     setNewTask('');
+    setTaskDifficulty('MEDIUM'); // Reset to default
   };
 
   const handleToggleTask = (taskId) => {
@@ -31,7 +38,7 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     };
-    onUpdate(updatedSubject, !wasCompleted);
+    onUpdate(updatedSubject, !wasCompleted, task.difficulty);
   };
 
   const handleDeleteTask = (taskId) => {
@@ -45,7 +52,7 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
   const handleEditTask = (taskId) => {
     const task = subject.tasks.find(t => t.id === taskId);
     if (task) {
-      setEditingTask({ id: taskId, content: task.content });
+      setEditingTask({ id: taskId, content: task.content, difficulty: task.difficulty });
     }
   };
 
@@ -57,7 +64,7 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
       ...subject,
       tasks: subject.tasks.map(task =>
         task.id === editingTask.id
-          ? { ...task, content: editingTask.content.trim() }
+          ? { ...task, content: editingTask.content.trim(), difficulty: editingTask.difficulty }
           : task
       )
     };
@@ -80,22 +87,33 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
       <div className="space-y-2 max-h-[300px] overflow-y-auto mb-4">
         {subject.tasks.map(task => (
           editingTask?.id === task.id ? (
-            <form key={task.id} onSubmit={handleUpdateTask} className="flex gap-2">
+            <form key={task.id} onSubmit={handleUpdateTask} className="space-y-2">
               <input
                 type="text"
                 value={editingTask.content}
                 onChange={(e) => setEditingTask({ ...editingTask, content: e.target.value })}
-                className="flex-grow px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400"
                 autoFocus
               />
-              <button type="submit" className="btn btn-primary">Save</button>
-              <button
-                type="button"
-                onClick={() => setEditingTask(null)}
-                className="btn btn-secondary"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={editingTask.difficulty}
+                  onChange={(e) => setEditingTask({ ...editingTask, difficulty: e.target.value })}
+                  className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400 text-sm"
+                >
+                  {Object.entries(difficultyLevels).map(([key, { label }]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+                <button type="submit" className="btn btn-primary">Save</button>
+                <button
+                  type="button"
+                  onClick={() => setEditingTask(null)}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           ) : (
             <TaskItem
@@ -104,22 +122,35 @@ export default function SubjectCard({ subject, onUpdate, onDelete }) {
               onToggle={handleToggleTask}
               onDelete={handleDeleteTask}
               onEdit={handleEditTask}
+              difficultyLevel={difficultyLevels[task.difficulty]}
             />
           )
         ))}
       </div>
 
-      <form onSubmit={handleAddTask} className="flex gap-2">
+      <form onSubmit={handleAddTask} className="space-y-2">
         <input
           type="text"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           placeholder="Add a new task..."
-          className="flex-grow px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400"
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400"
         />
-        <button type="submit" className="btn btn-primary">
-          <PlusIcon className="w-5 h-5" />
-        </button>
+        <div className="flex gap-2">
+          <select
+            value={taskDifficulty}
+            onChange={(e) => setTaskDifficulty(e.target.value)}
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400 text-sm"
+          >
+            {Object.entries(difficultyLevels).map(([key, { label }]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+          <button type="submit" className="btn btn-primary flex items-center gap-1">
+            <PlusIcon className="w-5 h-5" />
+            Add Task
+          </button>
+        </div>
       </form>
     </div>
   );
