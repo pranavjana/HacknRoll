@@ -81,6 +81,7 @@ export default function SubjectCard({
   };
 
   const handleDeleteTask = (taskId) => {
+    const task = (subject.tasks || []).find((t) => t?.id === taskId);
     const updatedSubject = {
       ...subject,
       tasks: (subject.tasks || []).filter((task) => task?.id !== taskId),
