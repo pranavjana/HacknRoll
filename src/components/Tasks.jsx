@@ -6,9 +6,9 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 
 const DIFFICULTY_LEVELS = {
-  LOW: { label: 'Low', xp: 10, color: 'bg-green-100 text-green-800' },
-  MEDIUM: { label: 'Medium', xp: 20, color: 'bg-yellow-100 text-yellow-800' },
-  HIGH: { label: 'High', xp: 30, color: 'bg-red-100 text-red-800' }
+  LOW: { label: 'Low', xp: 10, color: 'bg-green-100 text-green-700' },
+  MEDIUM: { label: 'Medium', xp: 20, color: 'bg-yellow-100 text-yellow-700' },
+  HIGH: { label: 'High', xp: 30, color: 'bg-red-100 text-red-700' }
 };
 
 const loadFromStorage = (key, defaultValue) => {
@@ -81,7 +81,7 @@ export default function Tasks({ coins, onLevelUp }) {
         <h2 className="text-2xl font-bold text-neutral-800">Your Tasks</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-md">
-            <CurrencyDollarIcon className="w-5 h-5 text-amber-500" />
+            <CurrencyDollarIcon className="w-5 h-5 text-amber-600" />
             <span className="font-medium text-amber-700">{coins}</span>
           </div>
           <Button

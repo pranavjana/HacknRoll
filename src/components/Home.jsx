@@ -3,7 +3,7 @@ export default function Home() {
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-neutral-800 mb-4">
-          Welcome to PETRACK
+          Welcome to Pawgress
         </h1>
         <p className="text-neutral-600 mb-6">
           Your personal task manager with a virtual pet companion! Complete tasks to earn XP and level up.

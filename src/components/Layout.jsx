@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { HomeIcon, ClipboardIcon, HeartIcon, ShoppingBagIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Layout() {
   return (
@@ -7,7 +8,13 @@ export default function Layout() {
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-lg">
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-neutral-800 mb-8">PETRACK</h1>
+          <h1 className="text-2xl font-bold text-neutral-800 mb-8 flex items-center justify-center">
+            <span className="tracking-[0.15em]">P</span>
+            <span className="text-amber-500 px-[0.15em] flex items-center justify-center" style={{ width: '1.25em' }}>
+              <FontAwesomeIcon icon="paw" className="w-4 h-4" />
+            </span>
+            <span className="tracking-[0.15em]">WGRESS</span>
+          </h1>
           <nav className="space-y-2">
             <NavLink
               to="/"
