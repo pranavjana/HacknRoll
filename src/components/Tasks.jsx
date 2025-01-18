@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { PlusIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import SubjectCard from './SubjectCard';
-import ProgressBar from './ProgressBar';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { useState, useEffect } from "react";
+import { PlusIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import SubjectCard from "./SubjectCard";
+import ProgressBar from "./ProgressBar";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 const DIFFICULTY_LEVELS = {
-  LOW: { label: 'Low', xp: 10, color: 'bg-green-100 text-green-700' },
-  MEDIUM: { label: 'Medium', xp: 20, color: 'bg-yellow-100 text-yellow-700' },
-  HIGH: { label: 'High', xp: 30, color: 'bg-red-100 text-red-700' }
+  LOW: { label: "Low", xp: 10, color: "bg-green-100 text-green-700" },
+  MEDIUM: { label: "Medium", xp: 20, color: "bg-yellow-100 text-yellow-700" },
+  HIGH: { label: "High", xp: 30, color: "bg-red-100 text-red-700" },
 };
 
 const loadFromStorage = (key, defaultValue) => {
@@ -18,37 +18,41 @@ const loadFromStorage = (key, defaultValue) => {
 
 const calculateLevel = (xp) => ({
   level: Math.floor(xp / 100),
-  nextLevelXP: (Math.floor(xp / 100) + 1) * 100
+  nextLevelXP: (Math.floor(xp / 100) + 1) * 100,
 });
 
 export default function Tasks({ coins, onLevelUp }) {
-  const [subjects, setSubjects] = useState(() => loadFromStorage('subjects', []));
-  const [newSubject, setNewSubject] = useState('');
+  const [subjects, setSubjects] = useState(() =>
+    loadFromStorage("subjects", []),
+  );
+  const [newSubject, setNewSubject] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-  const [xp, setXP] = useState(() => loadFromStorage('xpData', { xp: 0, level: 0 }).xp);
+  const [xp, setXP] = useState(
+    () => loadFromStorage("xpData", { xp: 0, level: 0 }).xp,
+  );
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [lastCheckedXP, setLastCheckedXP] = useState(xp);
 
   const { level, nextLevelXP } = calculateLevel(xp);
 
   useEffect(() => {
-    localStorage.setItem('subjects', JSON.stringify(subjects));
+    localStorage.setItem("subjects", JSON.stringify(subjects));
   }, [subjects]);
 
   useEffect(() => {
-    localStorage.setItem('xpData', JSON.stringify({ xp, level }));
+    localStorage.setItem("xpData", JSON.stringify({ xp, level }));
   }, [xp, level]);
 
   useEffect(() => {
     const previousLevel = calculateLevel(lastCheckedXP).level;
     const currentLevel = calculateLevel(xp).level;
-    
+
     if (currentLevel > previousLevel) {
       onLevelUp();
       setShowLevelUp(true);
       setTimeout(() => setShowLevelUp(false), 3000);
     }
-    
+
     setLastCheckedXP(xp);
   }, [xp, lastCheckedXP, onLevelUp]);
 
@@ -56,23 +60,32 @@ export default function Tasks({ coins, onLevelUp }) {
     e.preventDefault();
     if (!newSubject.trim()) return;
 
-    setSubjects(prev => [...prev, {
-      id: Date.now(),
-      title: newSubject.trim(),
-      tasks: []
-    }]);
-    setNewSubject('');
+    setSubjects((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        title: newSubject.trim(),
+        tasks: [],
+      },
+    ]);
+    setNewSubject("");
     setIsAdding(false);
   };
 
-  const handleUpdateSubject = (updatedSubject, taskCompleted = false, taskDifficulty = 'MEDIUM') => {
+  const handleUpdateSubject = (
+    updatedSubject,
+    taskCompleted = false,
+    taskDifficulty = "MEDIUM",
+  ) => {
     if (taskCompleted) {
-      setXP(currentXP => currentXP + DIFFICULTY_LEVELS[taskDifficulty].xp);
+      setXP((currentXP) => currentXP + DIFFICULTY_LEVELS[taskDifficulty].xp);
     }
-    
-    setSubjects(prev => prev.map(subject =>
-      subject.id === updatedSubject.id ? updatedSubject : subject
-    ));
+
+    setSubjects((prev) =>
+      prev.map((subject) =>
+        subject.id === updatedSubject.id ? updatedSubject : subject,
+      ),
+    );
   };
 
   return (
@@ -113,7 +126,11 @@ export default function Tasks({ coins, onLevelUp }) {
               autoFocus
             />
             <Button type="submit">Add</Button>
-            <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsAdding(false)}
+            >
               Cancel
             </Button>
           </form>
@@ -121,16 +138,18 @@ export default function Tasks({ coins, onLevelUp }) {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {subjects.map(subject => (
+        {subjects.map((subject) => (
           <SubjectCard
             key={subject.id}
             subject={subject}
             onUpdate={handleUpdateSubject}
-            onDelete={(id) => setSubjects(prev => prev.filter(s => s.id !== id))}
+            onDelete={(id) =>
+              setSubjects((prev) => prev.filter((s) => s.id !== id))
+            }
             difficultyLevels={DIFFICULTY_LEVELS}
           />
         ))}
       </div>
     </div>
   );
-} 
+}

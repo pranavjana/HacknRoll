@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Home from './components/Home';
-import Tasks from './components/Tasks';
-import Pet from './components/Pet';
-import Shop from './components/Shop';
-import History from './components/History';
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./components/Home";
+import Tasks from "./components/Tasks";
+import Pet from "./components/Pet";
+import Shop from "./components/Shop";
+import History from "./components/History";
 
 export default function App() {
   // Shared state for coins
   const [coins, setCoins] = useState(() => {
-    const saved = localStorage.getItem('coins');
+    const saved = localStorage.getItem("coins");
     return saved ? parseInt(saved, 10) : 100;
   });
 
   // Save coins to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('coins', coins.toString());
+    localStorage.setItem("coins", coins.toString());
   }, [coins]);
 
   const handlePurchase = (item) => {
-    setCoins(prevCoins => prevCoins - item.price);
+    setCoins((prevCoins) => prevCoins - item.price);
   };
 
   const handleLevelUp = () => {
-    setCoins(prevCoins => prevCoins + 100);
+    setCoins((prevCoins) => prevCoins + 100);
   };
 
   return (
@@ -32,10 +32,25 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="tasks" element={<Tasks coins={coins} setCoins={setCoins} onLevelUp={handleLevelUp} />} />
+          <Route
+            path="tasks"
+            element={
+              <Tasks
+                coins={coins}
+                setCoins={setCoins}
+                onLevelUp={handleLevelUp}
+              />
+            }
+          />
           <Route path="history" element={<History />} />
-          <Route path="pet" element={<Pet coins={coins} setCoins={setCoins} />} />
-          <Route path="shop" element={<Shop coins={coins} onPurchase={handlePurchase} />} />
+          <Route
+            path="pet"
+            element={<Pet coins={coins} setCoins={setCoins} />}
+          />
+          <Route
+            path="shop"
+            element={<Shop coins={coins} onPurchase={handlePurchase} />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
