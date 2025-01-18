@@ -5,6 +5,7 @@ import Home from './components/Home';
 import Tasks from './components/Tasks';
 import Pet from './components/Pet';
 import Shop from './components/Shop';
+import History from './components/History';
 
 export default function App() {
   // Shared state for coins
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="tasks" element={<Tasks coins={coins} setCoins={setCoins} onLevelUp={handleLevelUp} />} />
+          <Route path="history" element={<History />} />
           <Route path="pet" element={<Pet coins={coins} setCoins={setCoins} />} />
           <Route path="shop" element={<Shop coins={coins} onPurchase={handlePurchase} />} />
         </Route>

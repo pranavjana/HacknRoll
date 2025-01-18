@@ -19,6 +19,7 @@ export default function SubjectCard({ subject, onUpdate, onDelete, difficultyLev
           id: Date.now(), 
           content: newTask.trim(), 
           completed: false,
+          completedAt: null,
           difficulty: taskDifficulty
         }
       ]
@@ -28,14 +29,14 @@ export default function SubjectCard({ subject, onUpdate, onDelete, difficultyLev
     setTaskDifficulty('MEDIUM'); // Reset to default
   };
 
-  const handleToggleTask = (taskId) => {
+  const handleToggleTask = (taskId, completedAt) => {
     const task = subject.tasks.find(t => t.id === taskId);
     const wasCompleted = task.completed;
     
     const updatedSubject = {
       ...subject,
       tasks: subject.tasks.map(task =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
+        task.id === taskId ? { ...task, completed: !task.completed, completedAt } : task
       )
     };
     onUpdate(updatedSubject, !wasCompleted, task.difficulty);

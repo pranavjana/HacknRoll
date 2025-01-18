@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { HomeIcon, ClipboardIcon, HeartIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, ClipboardIcon, HeartIcon, ShoppingBagIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 export default function Layout() {
   return (
@@ -34,6 +34,19 @@ export default function Layout() {
             >
               <ClipboardIcon className="w-5 h-5" />
               <span>Tasks</span>
+            </NavLink>
+            <NavLink
+              to="/history"
+              className={({ isActive }) =>
+                `flex items-center gap-2 p-3 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-neutral-100 text-neutral-900'
+                    : 'text-neutral-600 hover:bg-neutral-50'
+                }`
+              }
+            >
+              <ChartBarIcon className="w-5 h-5" />
+              <span>History</span>
             </NavLink>
             <NavLink
               to="/pet"

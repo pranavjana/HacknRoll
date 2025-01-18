@@ -2,54 +2,43 @@ import { useState, useEffect } from 'react';
 import { PlusIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import SubjectCard from './SubjectCard';
 import ProgressBar from './ProgressBar';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
-// Task difficulty levels and their XP rewards
 const DIFFICULTY_LEVELS = {
   LOW: { label: 'Low', xp: 10, color: 'bg-green-100 text-green-800' },
   MEDIUM: { label: 'Medium', xp: 20, color: 'bg-yellow-100 text-yellow-800' },
   HIGH: { label: 'High', xp: 30, color: 'bg-red-100 text-red-800' }
 };
 
-// Load subjects from localStorage or use empty array
-const loadSubjects = () => {
-  const saved = localStorage.getItem('subjects');
-  return saved ? JSON.parse(saved) : [];
+const loadFromStorage = (key, defaultValue) => {
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : defaultValue;
 };
 
-// Load XP data from localStorage or use defaults
-const loadXPData = () => {
-  const saved = localStorage.getItem('xpData');
-  return saved ? JSON.parse(saved) : { xp: 0, level: 0 };
-};
-
-// Calculate level and next level XP threshold
-const calculateLevel = (xp) => {
-  const level = Math.floor(xp / 100);
-  const nextLevelXP = (level + 1) * 100;
-  return { level, nextLevelXP };
-};
+const calculateLevel = (xp) => ({
+  level: Math.floor(xp / 100),
+  nextLevelXP: (Math.floor(xp / 100) + 1) * 100
+});
 
 export default function Tasks({ coins, onLevelUp }) {
-  const [subjects, setSubjects] = useState(loadSubjects);
+  const [subjects, setSubjects] = useState(() => loadFromStorage('subjects', []));
   const [newSubject, setNewSubject] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [xp, setXP] = useState(loadXPData().xp);
+  const [xp, setXP] = useState(() => loadFromStorage('xpData', { xp: 0, level: 0 }).xp);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [lastCheckedXP, setLastCheckedXP] = useState(xp);
 
   const { level, nextLevelXP } = calculateLevel(xp);
 
-  // Save subjects to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('subjects', JSON.stringify(subjects));
   }, [subjects]);
 
-  // Save XP data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('xpData', JSON.stringify({ xp, level }));
   }, [xp, level]);
 
-  // Handle level-up logic
   useEffect(() => {
     const previousLevel = calculateLevel(lastCheckedXP).level;
     const currentLevel = calculateLevel(xp).level;
@@ -67,35 +56,23 @@ export default function Tasks({ coins, onLevelUp }) {
     e.preventDefault();
     if (!newSubject.trim()) return;
 
-    const subject = {
+    setSubjects(prev => [...prev, {
       id: Date.now(),
       title: newSubject.trim(),
       tasks: []
-    };
-
-    setSubjects(prevSubjects => [...prevSubjects, subject]);
+    }]);
     setNewSubject('');
     setIsAdding(false);
   };
 
   const handleUpdateSubject = (updatedSubject, taskCompleted = false, taskDifficulty = 'MEDIUM') => {
     if (taskCompleted) {
-      // Award XP based on task difficulty
-      const xpReward = DIFFICULTY_LEVELS[taskDifficulty].xp;
-      setXP(currentXP => currentXP + xpReward);
+      setXP(currentXP => currentXP + DIFFICULTY_LEVELS[taskDifficulty].xp);
     }
     
-    setSubjects(prevSubjects => 
-      prevSubjects.map(subject =>
-        subject.id === updatedSubject.id ? updatedSubject : subject
-      )
-    );
-  };
-
-  const handleDeleteSubject = (subjectId) => {
-    setSubjects(prevSubjects => 
-      prevSubjects.filter(subject => subject.id !== subjectId)
-    );
+    setSubjects(prev => prev.map(subject =>
+      subject.id === updatedSubject.id ? updatedSubject : subject
+    ));
   };
 
   return (
@@ -107,13 +84,13 @@ export default function Tasks({ coins, onLevelUp }) {
             <CurrencyDollarIcon className="w-5 h-5 text-amber-500" />
             <span className="font-medium text-amber-700">{coins}</span>
           </div>
-          <button
+          <Button
             onClick={() => setIsAdding(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <PlusIcon className="w-5 h-5" />
             Add Subject
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -128,24 +105,17 @@ export default function Tasks({ coins, onLevelUp }) {
       {isAdding && (
         <div className="mb-8">
           <form onSubmit={handleAddSubject} className="flex gap-2 max-w-md">
-            <input
+            <Input
               type="text"
               value={newSubject}
               onChange={(e) => setNewSubject(e.target.value)}
               placeholder="Enter subject name..."
-              className="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-400"
               autoFocus
             />
-            <button type="submit" className="btn btn-primary">
-              Add
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAdding(false)}
-              className="btn btn-secondary"
-            >
+            <Button type="submit">Add</Button>
+            <Button type="button" variant="outline" onClick={() => setIsAdding(false)}>
               Cancel
-            </button>
+            </Button>
           </form>
         </div>
       )}
@@ -156,7 +126,7 @@ export default function Tasks({ coins, onLevelUp }) {
             key={subject.id}
             subject={subject}
             onUpdate={handleUpdateSubject}
-            onDelete={handleDeleteSubject}
+            onDelete={(id) => setSubjects(prev => prev.filter(s => s.id !== id))}
             difficultyLevels={DIFFICULTY_LEVELS}
           />
         ))}
