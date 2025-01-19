@@ -110,7 +110,7 @@ function Tasks() {
   const [isAdding, setIsAdding] = useState(false);
   const [xp, setXP] = useState(() => loadFromStorage('xpData', { xp: 0, level: 0 }).xp);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [lastCheckedXP, setLastCheckedXP] = useState(xp);
+  const [lastCheckedLevel, setLastCheckedLevel] = useState(() => calculateLevel(loadFromStorage('xpData', { xp: 0, level: 0 }).xp).level);
 
   const { level, nextLevelXP } = calculateLevel(xp);
 
@@ -124,20 +124,16 @@ function Tasks() {
     localStorage.setItem('xpData', JSON.stringify({ xp, level }));
   }, [xp, level]);
 
-  // Handle level up
+  // Handle level up - only triggers once per level
   useEffect(() => {
-    const previousLevel = calculateLevel(lastCheckedXP).level;
-    const currentLevel = calculateLevel(xp).level;
-
-    if (currentLevel > previousLevel) {
+    if (level > lastCheckedLevel) {
       onLevelUp();
       setShowLevelUp(true);
       const timeout = setTimeout(() => setShowLevelUp(false), LEVEL_UP_DURATION);
+      setLastCheckedLevel(level);
       return () => clearTimeout(timeout);
     }
-
-    setLastCheckedXP(xp);
-  }, [xp, lastCheckedXP, onLevelUp]);
+  }, [level, lastCheckedLevel, onLevelUp]);
 
   const handleAddSubject = (newSubject) => {
     setSubjects((prev) => [...prev, newSubject]);

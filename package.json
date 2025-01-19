@@ -41,5 +41,18 @@
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "vite": "^5.0.8"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://pranavjana: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@github.com/pranavjana/HacknRoll.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pranavjana/HacknRoll/issues"
+  },
+  "homepage": "https://github.com/pranavjana/HacknRoll#readme"
 }

@@ -128,7 +128,7 @@ const PetNameForm = memo(function PetNameForm({ onSubmit, defaultName = '' }) {
   );
 });
 
-function FeatureCard({ icon: Icon, title, children, delay = 0 }) {
+function FeatureCard({ icon: Icon, iconType = 'heroicon', title, children, delay = 0 }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -138,7 +138,11 @@ function FeatureCard({ icon: Icon, title, children, delay = 0 }) {
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 bg-amber-100 rounded-lg">
-          <Icon className="h-6 w-6 text-amber-600" />
+          {iconType === 'fontawesome' ? (
+            <FontAwesomeIcon icon={Icon} className="h-6 w-6 text-amber-600" />
+          ) : (
+            <Icon className="h-6 w-6 text-amber-600" />
+          )}
         </div>
         <h2 className="text-xl font-semibold text-neutral-800">{title}</h2>
       </div>
@@ -202,7 +206,7 @@ function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <FeatureCard 
-                icon={CheckCircleIcon} 
+                icon={CheckCircleIcon}
                 title="Task Management"
                 delay={0.5}
               >
@@ -213,14 +217,17 @@ function Home() {
               </FeatureCard>
 
               <FeatureCard 
-                icon={FontAwesomeIcon} 
+                icon={faPaw}
+                iconType="fontawesome"
                 title="Virtual Pet"
                 delay={0.7}
               >
                 <p className="text-neutral-600 mb-4">
                   Take care of your virtual pet companion! Use earned coins to buy food, toys, and accessories.
                 </p>
-                <PetSprite />
+                <div className="flex flex-col items-center justify-center">
+                  <PetSprite />
+                </div>
               </FeatureCard>
             </div>
 
