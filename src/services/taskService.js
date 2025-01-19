@@ -1,30 +1,29 @@
 // Base URL for the API
 const API_BASE_URL = "http://localhost:5000";
 
+const headers = {
+  'Content-Type': 'application/json'
+};
+
 // Helper function to handle API responses
-const handleResponse = async (response) => {
+async function handleResponse(response) {
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || "Something went wrong");
+    throw new Error(error.message || `API Error: ${response.status}`);
   }
   return response.json();
-};
+}
 
 // Task Service object containing all API calls
 const taskService = {
   // Get all tasks
-  getAllTasks: async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/fetchtask`, {
-        method: 'GET',
-        headers,
-        credentials: 'include', // Include cookies if needed
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Error fetching tasks");
-      throw error;
-    }
+  async getAllTasks() {
+    const response = await fetch(`${API_BASE_URL}/fetchtask`, {
+      method: 'GET',
+      headers,
+      credentials: 'include'
+    });
+    return handleResponse(response);
   },
 
   // Get a single task by ID
@@ -38,66 +37,42 @@ const taskService = {
   //     }
   //   },
   // Create a new task
-  createSubject: async (subjectData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/addsubject`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(subjectData),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Error creating subject");
-      throw error;
-    }
+  async createSubject(subjectData) {
+    const response = await fetch(`${API_BASE_URL}/addsubject`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(subjectData)
+    });
+    return handleResponse(response);
   },
   // Create a new task
-  createTask: async (taskData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/addtask`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(taskData),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error("Error creating task");
-      throw error;
-    }
+  async createTask(taskData) {
+    const response = await fetch(`${API_BASE_URL}/addtask`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(taskData)
+    });
+    return handleResponse(response);
   },
 
   // Update an existing task
-  updateTask: async (taskId, taskData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/updatetask`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(taskData),
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error('Error updating task:', error);
-      throw error;
-    }
+  async updateTask(taskId, taskData) {
+    const response = await fetch(`${API_BASE_URL}/updatetask`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ ...taskData, id: taskId })
+    });
+    return handleResponse(response);
   },
 
   // Delete a task
-  deleteTask: async (taskId) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/deletetask`, {
-        method: "DELETE",
-      });
-      return handleResponse(response);
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      throw error;
-    }
+  async deleteTask(taskId) {
+    const response = await fetch(`${API_BASE_URL}/deletetask`, {
+      method: 'DELETE',
+      headers,
+      body: JSON.stringify({ id: taskId })
+    });
+    return handleResponse(response);
   },
 };
 

@@ -3,9 +3,10 @@ import { PlayIcon, PauseIcon, CurrencyDollarIcon } from '@heroicons/react/24/sol
 import HealthBar from './HealthBar';
 import DraggableItem from './DraggableItem';
 import WoofBubble from './WoofBubble';
+import { getInventory, removeFromInventory } from '../services/inventoryService';
 
 // Import all sprite frames
-const frames = [
+const sitFrames = [
   '/sprites/sit1.png',
   '/sprites/sit2.png',
   '/sprites/sit3.png',
@@ -14,6 +15,39 @@ const frames = [
   '/sprites/sit6.png',
 ];
 
+const jumpFrames = [
+  '/sprites/jump1.png',
+  '/sprites/jump2.png',
+  '/sprites/jump3.png',
+  '/sprites/jump4.png',
+  '/sprites/jump5.png',
+  '/sprites/jump6.png',
+  '/sprites/jump7.png',
+  '/sprites/jump8.png',
+  '/sprites/jump9.png',
+  '/sprites/jump10.png',
+  '/sprites/jump11.png',
+];
+
+const sniffFrames = [
+  '/sprites/sniff1.png',
+  '/sprites/sniff2.png',
+  '/sprites/sniff3.png',
+  '/sprites/sniff5.png',
+  '/sprites/sniff6.png',
+  '/sprites/sniff7.png',
+  '/sprites/sniff8.png',
+];
+
+const sadFrames = [
+  '/sprites/sad1.png'
+];
+
+// Animation constants
+const HEALTH_THRESHOLD = 30;
+const SNIFF_INTERVAL = 8000;
+const HEALTH_DECREASE_INTERVAL = 10000;
+
 // Background options
 const backgrounds = {
   GRASS: '/background/grass1.jpg',
@@ -21,30 +55,20 @@ const backgrounds = {
   HOME: '/background/home1.jpg',
 };
 
-// Initial items data
-const initialItems = [
-  { id: 1, name: 'Bone Treat', type: 'food', quantity: 3 },
-  { id: 2, name: 'Tennis Ball', type: 'toy', quantity: 2 },
-  { id: 3, name: 'Pet Medicine', type: 'medicine', quantity: 1 },
-  { id: 4, name: 'Chicken Snack', type: 'food', quantity: 5 },
-  { id: 5, name: 'Squeaky Duck', type: 'toy', quantity: 1 },
-  { id: 6, name: 'Vitamins', type: 'medicine', quantity: 2 },
-];
-
 export default function Pet({ coins, setCoins }) {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isJumping, setIsJumping] = useState(false);
+  const [isSniffing, setIsSniffing] = useState(false);
   const [health, setHealth] = useState(() => {
     const savedHealth = localStorage.getItem('petHealth');
     return savedHealth ? parseInt(savedHealth, 10) : 80;
   });
-  const [items, setItems] = useState(() => {
-    const savedItems = localStorage.getItem('petItems');
-    return savedItems ? JSON.parse(savedItems) : initialItems;
-  });
+  const [items, setItems] = useState(() => getInventory());
   const [currentBackground, setCurrentBackground] = useState(backgrounds.GRASS);
   const [isDragOver, setIsDragOver] = useState(false);
   const animationRef = useRef();
+  const [petName, setPetName] = useState('');
 
   const MAX_HEALTH = 100;
 
@@ -52,11 +76,6 @@ export default function Pet({ coins, setCoins }) {
   useEffect(() => {
     localStorage.setItem('petHealth', health.toString());
   }, [health]);
-
-  // Save items to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('petItems', JSON.stringify(items));
-  }, [items]);
 
   // Animation loop
   useEffect(() => {
@@ -68,15 +87,41 @@ export default function Pet({ coins, setCoins }) {
     }
 
     let lastTime = 0;
-    const fps = 8; // Frames per second
+    const fps = isJumping ? 12 : 8;
     const frameInterval = 1000 / fps;
+    
+    // Determine which animation to use
+    let currentAnimation;
+    if (health < HEALTH_THRESHOLD) {
+      currentAnimation = sadFrames;
+    } else if (isJumping) {
+      currentAnimation = jumpFrames;
+    } else if (isSniffing) {
+      currentAnimation = sniffFrames;
+    } else {
+      currentAnimation = sitFrames;
+    }
 
     const animate = (timestamp) => {
       if (!lastTime) lastTime = timestamp;
       const elapsed = timestamp - lastTime;
 
       if (elapsed > frameInterval) {
-        setCurrentFrame((prev) => (prev + 1) % frames.length);
+        setCurrentFrame((prev) => {
+          // Don't cycle frames for sad animation
+          if (health < HEALTH_THRESHOLD) return 0;
+          
+          const nextFrame = (prev + 1) % currentAnimation.length;
+          // If we complete a jump or sniff animation cycle
+          if ((isJumping || isSniffing) && nextFrame === 0) {
+            if (isJumping) {
+              setIsJumping(false);
+            } else if (isSniffing) {
+              setIsSniffing(false);
+            }
+          }
+          return nextFrame;
+        });
         lastTime = timestamp;
       }
 
@@ -90,19 +135,37 @@ export default function Pet({ coins, setCoins }) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying]);
+  }, [isPlaying, isJumping, isSniffing, health]);
+
+  // Alternate between sit and sniff animations
+  useEffect(() => {
+    if (!isPlaying || isJumping || health < HEALTH_THRESHOLD) return;
+
+    const startSniffing = () => {
+      if (!isJumping) {
+        setIsSniffing(true);
+        setCurrentFrame(0);
+      }
+    };
+
+    const interval = setInterval(startSniffing, SNIFF_INTERVAL);
+    return () => clearInterval(interval);
+  }, [isPlaying, isJumping, health]);
 
   const toggleAnimation = () => {
     setIsPlaying(!isPlaying);
   };
 
   const handleUseItem = (item) => {
-    // Update item quantity
-    setItems(items.map(i => 
-      i.id === item.id 
-        ? { ...i, quantity: i.quantity - 1 }
-        : i
-    ));
+    // Remove item from inventory
+    const updatedInventory = removeFromInventory(item.id);
+    setItems(updatedInventory);
+
+    // Start jump animation when feeding
+    if (item.type === 'food') {
+      setIsJumping(true);
+      setCurrentFrame(0); // Reset frame to start of jump animation
+    }
 
     // Apply item effects
     switch (item.type) {
@@ -156,6 +219,18 @@ export default function Pet({ coins, setCoins }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Refresh items from inventory when component mounts or items change
+  useEffect(() => {
+    setItems(getInventory());
+  }, []);
+
+  useEffect(() => {
+    const savedPetName = localStorage.getItem('petName');
+    if (savedPetName) {
+      setPetName(savedPetName);
+    }
+  }, []);
+
   return (
     <div className="flex gap-4 max-w-7xl mx-auto h-screen p-4">
       {/* Main Content */}
@@ -163,7 +238,9 @@ export default function Pet({ coins, setCoins }) {
         {/* Pet Display Card */}
         <div className="bg-white rounded-lg shadow-lg p-4">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-bold text-neutral-800">Your Pet</h2>
+            <h2 className="text-xl font-bold text-neutral-800">
+              {petName ? `Meet ${petName}!` : 'Your Virtual Pet'}
+            </h2>
             <div className="flex items-center gap-4">
               {/* Coins display */}
               <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-md">
@@ -215,7 +292,7 @@ export default function Pet({ coins, setCoins }) {
             onDrop={handleDrop}
             className={`
               w-full h-[400px] rounded-lg flex items-center justify-center overflow-hidden relative bg-neutral-50
-              transition-all duration-200
+              transition-all duration-300 ease-in-out
               ${isDragOver ? 'ring-4 ring-emerald-400 ring-opacity-50 scale-[1.02]' : ''}
             `}
             style={{
@@ -225,24 +302,41 @@ export default function Pet({ coins, setCoins }) {
             }}
           >
             {/* Drop zone hint */}
-            {isDragOver && (
-              <div className="absolute inset-0 bg-emerald-500 bg-opacity-10 flex items-center justify-center">
-                <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full text-sm font-medium text-emerald-600">
-                  Drop item here to use
-                </div>
+            <div className={`
+              absolute inset-0 bg-emerald-500 bg-opacity-0 flex items-center justify-center
+              transition-all duration-300 ease-in-out
+              ${isDragOver ? 'bg-opacity-10' : ''}
+            `}>
+              <div className={`
+                bg-white bg-opacity-90 px-4 py-2 rounded-full text-sm font-medium text-emerald-600
+                transition-all duration-300 ease-in-out transform
+                ${isDragOver ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
+              `}>
+                Drop item here to use
               </div>
-            )}
+            </div>
 
             {/* Platform shadow */}
-            <div className="absolute bottom-12 w-32 h-8 bg-black/10 rounded-full blur-sm" />
+            <div className="absolute bottom-6 w-32 h-8 bg-black/10 rounded-full blur-sm" />
             
             {/* Pet sprite */}
-            <div className="relative translate-y-16">
+            <div className={`
+              relative transform transition-all duration-200 ease-in-out
+              ${isJumping ? 'translate-y-20' : 'translate-y-28'}
+            `}>
               <WoofBubble />
               <img
-                src={frames[currentFrame]}
+                src={
+                  health < HEALTH_THRESHOLD
+                    ? sadFrames[0]
+                    : isJumping 
+                      ? jumpFrames[currentFrame] 
+                      : isSniffing 
+                        ? sniffFrames[currentFrame] 
+                        : sitFrames[currentFrame]
+                }
                 alt="Pet animation frame"
-                className="w-auto h-auto max-w-full max-h-full object-contain image-rendering-pixelated scale-[4]"
+                className="w-auto h-auto max-w-full max-h-full object-contain image-rendering-pixelated scale-[4] transition-transform duration-200"
                 style={{ imageRendering: 'pixelated' }}
               />
             </div>

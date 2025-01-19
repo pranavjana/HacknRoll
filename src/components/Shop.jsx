@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CurrencyDollarIcon } from '@heroicons/react/24/solid';
 import ShopItem from './ShopItem';
+import { addToInventory } from '../services/inventoryService';
 
 // Shop inventory data
 const shopItems = [
@@ -59,6 +60,9 @@ export default function Shop({ coins, onPurchase }) {
 
   const handleBuy = (item) => {
     if (coins >= item.price) {
+      // Add item to inventory
+      addToInventory(item);
+      // Update coins
       onPurchase(item);
       showNotification(`Successfully purchased ${item.name}!`, 'success');
     } else {
