@@ -23,6 +23,7 @@
     "d3": "^7.9.0",
     "date-fns": "^3.3.1",
     "framer-motion": "^11.18.1",
+    "material-icons": "^1.13.12",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18.2.0",
