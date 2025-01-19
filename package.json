@@ -46,6 +46,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pranavjana/HacknRoll.git"
+  },
   "bugs": {
     "url": "https://github.com/pranavjana/HacknRoll/issues"
   },
