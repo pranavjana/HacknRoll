@@ -1,6 +1,6 @@
 # Pawgress
 
-![Pawgress Screenshot]("public/screenshots/home.png")
+![Pawgress Screenshot](public/screenshots/home.png)
 
 Pawgress combines task management with the charm of a virtual pet to help users stay productive while enjoying a delightful companion.
 
@@ -14,7 +14,7 @@ Pawgress was inspired by our love for animals and our desire to boost productivi
 - Stay motivated with a delightful virtual pet that grows and interacts with you as you complete tasks.
 - A clean, responsive interface designed to make task management enjoyable.
 
-![Pawgress Screenshot]("public/screenshots/pet.png")
+![Pawgress Screenshot](public/screenshots/pet.png)
 
 ## How It Works
 
